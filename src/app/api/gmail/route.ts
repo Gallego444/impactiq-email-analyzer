@@ -1,4 +1,4 @@
-import { getSession, getAccessToken } from "@auth0/nextjs-auth0";
+import { getSession } from "@auth0/nextjs-auth0";
 import { NextRequest, NextResponse } from "next/server";
 import { apiJson } from "@/lib/api-response";
 import { isValidDateString } from "@/lib/date-range";
@@ -20,15 +20,18 @@ export async function GET(req: NextRequest) {
     }
 
     if (!isValidDateString(startDate) || !isValidDateString(endDate)) {
-      return apiJson({ error: "Formato de fecha inválido. Use YYYY-MM-DD." }, 400, sessionRes);
+      return apiJson({ error: "Formato de fecha inválido." }, 400, sessionRes);
     }
 
-    const { accessToken } = await getAccessToken(req, sessionRes);
-    if (!accessToken) {
-      return apiJson({ error: "No hay token de Google. Cierra sesión y vuelve a entrar." }, 401, sessionRes);
+    const googleToken = session.user.accessToken as string | undefined;
+    
+    if (!googleToken) {
+      return apiJson({ 
+        error: "No hay token de Google. Cierra sesión, revoca permisos en myaccount.google.com/permissions y vuelve a entrar." 
+      }, 401, sessionRes);
     }
 
-    const { emails, total } = await fetchGmailMessages(accessToken, startDate, endDate);
+    const { emails, total } = await fetchGmailMessages(googleToken, startDate, endDate);
     return apiJson({ emails, total }, 200, sessionRes);
 
   } catch (error: unknown) {
