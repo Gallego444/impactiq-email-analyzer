@@ -5,7 +5,6 @@ import {
 import type { NextRequest } from "next/server";
 import { POST_LOGIN_REDIRECT } from "@/lib/auth0-login";
 
-/** Login Auth0 + scopes Gmail en Google (connection_scope). */
 const LOGIN_AUTHORIZATION_PARAMS = {
   connection: "google-oauth2",
   scope: "openid profile email offline_access",
